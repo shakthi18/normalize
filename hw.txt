@@ -1,0 +1,313 @@
+
+
+SQL> create table  schwayshop(prodid number primary key,prodname varchar2(10),category varchar2(10),price number,venid number,vendor varchar2(10),phoneno number);
+
+Table created.
+
+SQL> alter table schwayshop modify phoneno varchar2(50);
+
+Table altered.
+                                *
+
+SQL> insert into schwayshop values(1,'fshirt','women',999,11,'kane','88888888,99999999');
+
+1 row created.
+
+SQL> select * from schwayshop;
+
+    PRODID PRODNAME   CATEGORY        PRICE      VENID VENDOR      PHONENO             
+---------- ---------- ---------- ---------- ---------- --------------------------                                                                                                                                                                             
+        1 fshirt     women             999         11 kane         88888888,99999999                                                               
+                                                                                
+SQL> insert into schwayshop values(4,'ufshirt','women',799,13,'warner','8998988');
+
+1 row created.
+
+SQL> insert into schwayshop values(2,'ufshirt','women',899,12,'boult','8998888');
+
+1 row created.
+
+SQL> select * from schwayshop;
+
+    PRODID PRODNAME   CATEGORY        PRICE      VENID VENDOR       PHONENO                
+---------- ---------- ---------- ---------- ---------- ----------               
+                                                                                                                                                           
+         1 fshirt     women             999         11 kane         88888888,99999999                                                               
+                                                                                
+         4 ufshirt    women             799         13 warner       8998988                                                                         
+                                                                                
+         2 ufshirt    women             899         12 boult        8998888                                                                         
+                                                                                
+
+####################SQL> AFTER 1NF-each row must have atomic value in column##########
+SQL> update schwayshop set phoneno='88888888' where prodid=1;
+
+1 row updated.
+
+SQL> select * from schwayshop;
+
+    PRODID PRODNAME   CATEGORY        PRICE      VENID VENDOR     PHONENO      
+---------- ---------- ---------- ---------- ---------- ----------                                                                                                                
+         1 fshirt     women             999         11 kane        88888888 
+         
+         1 fshirt     women             999         11 kane        99999999                                                                       
+                                                                                
+         4 ufshirt    women             799         13 warner      8998988                                                                         
+                                                                                
+         2 ufshirt    women             899         12 boult       8998888                                                                         
+                                                                                
+
+############################SQL> AFTER 2NF-NO PARTIAL DEPENDENCIES#############################
+SQL> create table split1(vendid int primary key,vendor varchar2(10),phoneno number);
+
+Table created. 
+
+SQL> insert into split1 values(11,'kane','88888888');
+
+1 row created.
+
+SQL> insert into split1 values(12,'boult','8998888');
+
+1 row created.
+
+SQL> insert into split1 values(13,'warner','8998988');
+
+1 row created.
+
+SQL> select * from split1;
+
+    VENDID VENDOR        PHONENO                                                
+---------- ---------- ----------                                                
+        11 kane         88888888
+        11 kane         99999999                                                
+        12 boult         8998888                                                
+        13 warner        8998988                                                
+
+SQL> create table split2(prodid int primary key,prodname varchar2(10),category varchar2(10),vendid int,foreign key(vendid) references split1(vendid));
+
+Table created.                                                       
+                                                                                
+SQL> insert into split2 values(1,'fshirt','women','11');
+
+1 row created.
+
+SQL> update schwayshop set prodid=3 where price=899;
+
+1 row updated.
+
+SQL> update schwayshop set prodid=2 where price=799;
+
+1 row updated.                                     
+
+SQL> select * from schwayshop;
+
+    PRODID PRODNAME   CATEGORY        PRICE      VENID VENDOR                   
+---------- ---------- ---------- ---------- ---------- ----------               
+PHONENO                                                                         
+--------------------------------------------------                              
+         1 fshirt     women             999         11 kane                     
+88888888                                                                        
+                                                                                
+         2 ufshirt    women             799         13 warner                   
+8998988                                                                         
+                                                                                
+         3 ufshirt    women             899         12 boult                    
+8998888                                                                         
+                                                                                
+
+SQL> insert into split2 values(2,'ufshirt','women','12');
+
+1 row created.
+
+SQL> insert into split2 values(3,'ufshirt','women','13');
+
+1 row created.
+
+SQL> insert into schwayshop values(4,'fshirt','men',1899,14,'jammie','9998888');
+
+1 row created.
+
+SQL> insert into split1 values(14,'jammie','9998888');
+
+1 row created.
+
+SQL> insert into split2 values(4,'fshirt','men','14');
+
+1 row created.
+
+SQL> select * from split1;
+
+    VENDID VENDOR        PHONENO                                                
+---------- ---------- ----------                                                
+        11 kane         88888888                                                
+        12 boult         8998888                                                
+        13 warner        8998988                                                
+        14 jammie        9998888                                                
+
+SQL> select * from split2;
+
+    PRODID PRODNAME   CATEGORY       VENDID                                     
+---------- ---------- ---------- ----------                                     
+         1 fshirt     women              11                                     
+         2 ufshirt    women              12                                     
+         3 ufshirt    women              13                                     
+         4 fshirt     men                14                                     
+
+SQL> insert into schwayshop values(5,'fshirt','men',1899,14,'jammie','9998888');
+
+1 row created.
+
+SQL> select * from schwayshop;
+
+    PRODID PRODNAME   CATEGORY        PRICE      VENID VENDOR                   
+---------- ---------- ---------- ---------- ---------- ----------               
+PHONENO                                                                         
+--------------------------------------------------                              
+         1 fshirt     women             999         11 kane                     
+88888888                                                                        
+                                                                                
+         4 fshirt     men              1899         14 jammie                   
+9998888                                                                         
+                                                                                
+         5 fshirt     men              1899         14 jammie                   
+9998888                                                                         
+                                                                                
+
+    PRODID PRODNAME   CATEGORY        PRICE      VENID VENDOR                   
+---------- ---------- ---------- ---------- ---------- ----------               
+PHONENO                                                                         
+--------------------------------------------------                              
+         2 ufshirt    women             799         13 warner                   
+8998988                                                                         
+                                                                                
+         3 ufshirt    women             899         12 boult                    
+8998888                                                                         
+                                                                                
+
+SQL> insert into split2 values(5,'fshirt','men','14');
+
+1 row created.
+
+SQL> select * from split1;
+
+    VENDID VENDOR        PHONENO                                                
+---------- ---------- ----------                                                
+        11 kane         88888888                                                
+        12 boult         8998888                                                
+        13 warner        8998988                                                
+        14 jammie        9998888                                                
+
+SQL> select * from split2;
+
+    PRODID PRODNAME   CATEGORY       VENDID     PRICE                                   
+---------- ---------- ---------- ----------                                     
+         1 fshirt     women              11      999                                  
+         2 ufshirt    women              12      899                            
+         3 ufshirt    women              13      799                            
+         4 fshirt     men                14      1899                            
+         5 fshirt     men                14      1899                           
+
+SQL> select * from split1;
+
+    VENDID VENDOR        PHONENO                                                
+---------- ---------- ----------                                                
+        11 kane         88888888                                                
+        12 boult         8998888                                                
+        13 warner        8998988                                                
+        14 jammie        9998888                                                
+
+SQL> select * from split2;
+
+    PRODID PRODNAME   CATEGORY       VENDID      PRICE                          
+---------- ---------- ---------- ---------- ----------                          
+         1 fshirt     women              11        999                          
+         2 ufshirt    women              12        799                          
+         3 ufshirt    women              13        899                          
+         4 fshirt     men                14       1899                          
+         5 fshirt     men                14       1899                          
+
+#########################SQL> as of now price is dependent on prodid so 3nf should be###################################
+
+SQL> create table split3(prodid int primary key,price int);
+
+Table created.
+
+SQL> create table split4(prodid int primary key,prodname varchar2(10),category varchar2(10),vendid int,foreign key(vendid) references split1(vendid));
+
+Table created.
+
+SQL> insert into split2 values(1,'fshirt','women','11');
+insert into split2 values(1,'fshirt','women','11')
+            *
+ERROR at line 1:
+ORA-00947: not enough values 
+
+
+SQL> insert into split4 values(1,'fshirt','women','11');
+
+1 row created.
+
+SQL> insert into split4 values(2,'ufshirt','women','12');
+
+1 row created.
+
+SQL> insert into split3 values(3,'ufshirt','women','13');
+insert into split3 values(3,'ufshirt','women','13')
+            *
+ERROR at line 1:
+ORA-00913: too many values 
+
+
+SQL> insert into split4 values(3,'ufshirt','women','13');
+
+1 row created.
+
+SQL> insert into split4 values(4,'fshirt','men','14');
+
+1 row created.
+
+SQL> insert into split4 values(5,'fshirt','men','14');
+
+1 row created.
+
+SQL> insert into split3 values(1,999);
+
+1 row created.
+
+SQL> insert into split3 values(2,799);
+
+1 row created.
+
+SQL> insert into split3 values(3,899);
+
+1 row created.
+
+SQL> insert into split3 values(4,1899);
+
+1 row created.
+
+SQL> insert into split3 values(5,1899);
+
+1 row created.
+
+SQL> select * from split3;
+
+    PRODID      PRICE                                                           
+---------- ----------                                                           
+         1        999                                                           
+         2        799                                                           
+         3        899                                                           
+         4       1899                                                           
+         5       1899                                                           
+
+SQL> select * from split4;
+
+    PRODID PRODNAME   CATEGORY       VENDID                                     
+---------- ---------- ---------- ----------                                     
+         1 fshirt     women              11                                     
+         2 ufshirt    women              12                                     
+         3 ufshirt    women              13                                     
+         4 fshirt     men                14                                     
+         5 fshirt     men                14                                     
+
+SQL> spool off
