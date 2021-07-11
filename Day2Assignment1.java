@@ -1,6 +1,6 @@
 import java.util.Scanner;
 import java.io.*;
-class SavingsAccount
+class SavingsAccount extends Bankass
 {
 	
 	int minimumBalance;
@@ -8,19 +8,19 @@ class SavingsAccount
 	{
 		minimumBalance=min;
 	}
-	void display()
+	public void display()
 	{
 		System.out.println("MINIMUM BALANCE  "+minimumBalance);
 	}
 	}
-class CurrentAccount
+class CurrentAccount extends Bankass
 {
 	int overdraftLimitAmount;
 	CurrentAccount(int limit)
 	{
 		overdraftLimitAmount=limit;
 	}
-	void display()
+	public void display()
 	{
 		System.out.println("OVER DRIFT VALUE  "+overdraftLimitAmount);
 		
